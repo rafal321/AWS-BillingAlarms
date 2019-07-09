@@ -26,7 +26,7 @@ for each in client.describe_images(Owners=['self'], Filters=filters)['Images']:
         print(result)
         lambda_return.append(result)
     else:
-        #client.deregister_image(ImageId=each['ImageId'])
+        client.deregister_image(ImageId=each['ImageId'])
         result=(each['ImageId'])
         print(result)
         lambda_return.append(result)
