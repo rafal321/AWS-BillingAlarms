@@ -155,3 +155,46 @@ print(lambda_return)
 #         }
 #     ]
 # }
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#Lambda on aws ++++++++++++++++++TO BE VERIFIED++++++++++++++++++++++++++++++++++++++++++++++++
+# this Lambda deregisters AMI and deletes Snapshots (optional)
+import json
+import boto3
+import os
+
+def lambda_handler(event, context):
+
+    region = event['region']               #'eu-west-1'
+    stage = event['stage']                 #'5'
+    delete_snap = event['delete_snap']     #True
+    
+    client = boto3.client('ec2', region_name=region)
+    counter = 0
+    lambda_return=[]
+    
+    filters=[
+            {'Name': 'tag:AmiStage2Version', 'Values': ['2']},
+            {'Name': 'tag:Stage', 'Values': [stage]}                
+    ]
+    for each in client.describe_images(Owners=['self'], Filters=filters)['Images']:
+        counter += 1
+        if delete_snap.lower() == 'yes':
+            # client.deregister_image(ImageId=each['ImageId'])
+            # try:                                                
+            #     client.delete_snapshot(SnapshotId=each['BlockDeviceMappings'][0]['Ebs']['SnapshotId'])
+            # except Exception:
+            #     pass
+            result=(each['ImageId'], each['BlockDeviceMappings'][0]['Ebs']['SnapshotId'])
+            lambda_return.append(result)
+        else:
+            #client.deregister_image(ImageId=each['ImageId'])
+            result=(each['ImageId'])
+            lambda_return.append(result)
+
+    print(lambda_return)
+    if delete_snap.lower() == 'yes':
+        print(f">> {counter} AMI Deregistered & Snapshots Deleted <<")    
+    else:
+        print(f">> {counter} AMI Deregistered <<")
+    
+    return lambda_return
