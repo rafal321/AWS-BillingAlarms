@@ -97,43 +97,49 @@ print(lambda_return)
 # }
 
 #  -----SSM PART -----------------------
-#  {
-#   "outputs": [
-#     "deregisterAMIdeleteSnap.Payload"
-#   ],
-#   "schemaVersion": "0.3",
-#   "description": "This automation document deregisters AMI and deletes snapshots (optional)",
-#   "assumeRole": "arn:aws:iam::411929112137:role/raf-ssmRoleforEC2",
-#   "parameters": {
-#     "deletesnap": {
-#       "default": "True",
-#       "description": "Delete snapshots as well? True/False",
-#       "type": "String"
-#     },
-#     "AmiStage": {
-#       "description": "Stage",
-#       "type": "String"
-#     },
-#     "region": {
-#       "default": "eu-west-1",
-#       "description": "Example: us-east-2, us-east-1, us-west-1 ...",
-#       "type": "String"
-#     }
-#   },
-#   "mainSteps": [
-#     {
-#       "maxAttempts": 3,
-#       "inputs": {
-#         "FunctionName": "deregisterAMIdeleteSnap",
-#         "Payload": "{\"region\":\"{{region}}\", \"delete_snap\":\"{{deletesnap}}\", \"stage\":\"{{AmiStage}}\"}"
-#       },
-#       "name": "deregisterAMIdeleteSnap",
-#       "action": "aws:invokeLambdaFunction",
-#       "timeoutSeconds": 120,
-#       "onFailure": "Abort"
-#     }
-#   ]
-# }
+{
+  "outputs": [
+    "deregisterAMIdeleteSnap.Payload"
+  ],
+  "schemaVersion": "0.3",
+  "description": "This automation document deregisters AMI and deletes snapshots (optional)",
+  "assumeRole": "arn:aws:iam::411929112137:role/raf-ssmRoleforEC2",
+  "parameters": {
+    "deletesnap": {
+      "default": "no",
+      "description": "Delete snapshots as well? yes/no",
+      "type": "String"
+    },
+    "AmiStage": {
+      "description": "Stage",
+      "default": "2",
+      "type": "String"
+    },
+    "AmiVersion": {
+      "description": "Version",
+      "default": "2",
+      "type": "String"
+    },
+    "region": {
+      "default": "eu-west-1",
+      "description": "Example: us-east-2, us-east-1, us-west-1 ...",
+      "type": "String"
+    }
+  },
+  "mainSteps": [
+    {
+      "maxAttempts": 3,
+      "inputs": {
+        "FunctionName": "deregisterAMIdeleteSnap",
+        "Payload": "{\"region\":\"{{region}}\", \"delete_snap\":\"{{deletesnap}}\", \"stage\":\"{{AmiStage}}\", \"version\":\"{{AmiVersion}}\"}"
+      },
+      "name": "deregisterAMIdeleteSnap",
+      "action": "aws:invokeLambdaFunction",
+      "timeoutSeconds": 120,
+      "onFailure": "Abort"
+    }
+  ]
+}
 
 
 
@@ -166,6 +172,7 @@ def lambda_handler(event, context):
 
     region = event['region']               #'eu-west-1'
     stage = event['stage']                 #'5'
+    version = event['version']             #'2'             raf added after to be tested
     delete_snap = event['delete_snap']     #True
     
     client = boto3.client('ec2', region_name=region)
@@ -173,7 +180,7 @@ def lambda_handler(event, context):
     lambda_return=[]
     
     filters=[
-            {'Name': 'tag:AmiStage2Version', 'Values': ['2']},
+            {'Name': 'tag:AmiStage2Version', 'Values': [version]},
             {'Name': 'tag:Stage', 'Values': [stage]}                
     ]
     for each in client.describe_images(Owners=['self'], Filters=filters)['Images']:
