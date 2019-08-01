@@ -1,0 +1,214 @@
+# As AWS Billing is only handled in N. Virginia, you must run this template in US-East-1.
+# CF ver.4 - Billing alarm based on previous day cost.
+# CF ignores cost for 3 services {ie. 'Amazon Route 53' 'Tax' 'AWS Support (Business)'} this cost is incurred
+# only on the first day of the month. By doing so we avoid false positive alarms
+
+
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'Billing Alerts for AWS Account'
+#================================================================================
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      -
+        Label:
+          default: "Alarm Configuration"
+        Parameters:
+          - EmailAddress
+          - AlarmThresholds
+          - AccName
+    ParameterLabels:
+      EmailAddress:
+        default: "What's your email address?"
+      AlarmThresholds:
+        default: "What dollar amount to alert on?"
+      AccName:
+        default: "Enter account name"
+#================================================================================
+Parameters:
+  EmailAddress:
+    Type: String
+    Description: "Enter your email address for billing alerts"
+    AllowedPattern: ^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$
+  AlarmThresholds:
+    Type: String
+    Description: "Enter value for billing alarm (e.g. 10)"
+  AccName:
+    Type: String
+    Description: "(e.g. aml-prod-aws) or (e.g. ana-ndc-preprod)"
+#================================================================================
+Resources:
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudwatch:DeleteAlarms
+                  - cloudwatch:DescribeAlarmHistory
+                  - cloudwatch:DescribeAlarms
+                  - cloudwatch:DescribeAlarmsForMetric
+                  - cloudwatch:GetMetricStatistics
+                  - cloudwatch:ListMetrics
+                  - cloudwatch:PutMetricAlarm
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - sns:ListTopics
+                  - sns:Publish
+                  - sns:ListSubscriptionsByTopic
+                  - sns:GetTopicAttributes
+                  - sns:ListSubscriptions
+                Resource: '*'
+      RoleName: lambda_exec_role_DailyBillAlarm
+  ScheduledRule: 
+    Type: AWS::Events::Rule
+    Properties: 
+      Description: "ScheduledRuleForBillingAlarms"
+      ScheduleExpression: "cron(0 3 * * ? *)"            
+      State: "ENABLED"
+      Targets: 
+        - 
+          Arn: 
+            Fn::GetAtt: 
+              - "LambdaFunction"
+              - "Arn"
+          Id: "TargetFunctionV1"
+  PermissionForEventsToInvokeLambda: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+      FunctionName: 
+        Ref: "LambdaFunction"
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: 
+        Fn::GetAtt: 
+          - "ScheduledRule"
+          - "Arn"    
+  LambdaRolePolicy:
+    DependsOn:
+      - LambdaRole
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: LambdaRolePolicy
+      Roles:
+        - !Ref 'LambdaRole'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - ce:GetCostAndUsage
+            Resource: '*'
+ 
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    DependsOn:
+      - LambdaRole
+      - LambdaRolePolicy
+    Properties:
+      Code:
+        ZipFile: |
+          import boto3
+          import os
+          import datetime
+          import pprint
+          from datetime import date, timedelta
+
+          alarm_amount = float(os.environ['alarmThreshold'])
+          accName = os.environ['accName']
+          today = date.today()
+          yesterday = today - timedelta(days = 1)
+          today_str = today.strftime("%Y-%m-%d")
+          yesterday_str = yesterday.strftime("%Y-%m-%d")
+
+          client1 = boto3.client(service_name='ce', region_name='us-east-1')
+          client2 = boto3.client(service_name='sns', region_name='us-east-1')
+          acc_ID = boto3.client('sts').get_caller_identity().get('Account')
+
+          def lambda_handler(event, context):
+
+              # ==Ignore Service === START ===========================================================
+              def service_ignore_cost():
+                  response2 = client1.get_cost_and_usage(
+                      TimePeriod={
+                          'Start': yesterday_str,
+                          'End': today_str 
+                      },
+                      Granularity='DAILY',
+                      Metrics=['UnblendedCost'],
+                      GroupBy=[{'Type': 'DIMENSION', 'Key': 'SERVICE'}]
+                  )
+                  total=0
+                  response3=(response2['ResultsByTime'])
+                  for r3 in response3:
+                      response4=(r3['Groups'])
+                      for r4 in response4:
+                          if ('Amazon Route 53' == r4['Keys'][0]) or ('Tax' == r4['Keys'][0]) or ('AWS Support (Business)' == r4['Keys'][0]):
+                              total+=float(r4['Metrics']['UnblendedCost']['Amount'])    
+                  total_ignore=(round((total), 2))
+                  return total_ignore        
+              
+              
+              response = client1.get_cost_and_usage(
+              TimePeriod={
+                  'Start': yesterday_str,
+                  'End': today_str 
+              },
+              Granularity='DAILY',
+              Metrics=['UnblendedCost']
+              )
+              
+              previousDayCost = round((float(response['ResultsByTime'][0]['Total']['UnblendedCost']['Amount']) - service_ignore_cost()), 2)
+              overspend = round((previousDayCost-alarm_amount), 2)
+              
+              
+              if previousDayCost > alarm_amount:
+                  outputA=(f'ALARM - | Threshold: ${alarm_amount} | Actual cost: ${previousDayCost} | Overspend: ${overspend}')
+                  print(outputA)
+                  response = client2.publish(
+                      TopicArn=(f'arn:aws:sns:us-east-1:{acc_ID}:Daily-Billing-Alerts'),
+                      Message=(f" Account: {acc_ID} - {accName} \n ALARM - | Threshold: ${alarm_amount} | Actual cost: ${previousDayCost} | Overspend: ${overspend} - yesterday!"),
+                      Subject=(f'Billing ALERT - Daily cost exceeds ${alarm_amount} per day.')
+                  )
+                  return outputA 
+              else:
+                  outputB=(f"QUIET - | Threshold: ${alarm_amount} | Actual cost: ${previousDayCost} | ${abs(overspend)} below budget.")
+                  print(outputB)
+                  return outputB
+
+      Role: !GetAtt 'LambdaRole.Arn'
+      Description: This function creates Daily Billing Alarm.
+      FunctionName: Daily-Billing-Alert
+      Timeout: 3
+      Handler: index.lambda_handler
+      Runtime: python3.6
+      MemorySize: 128
+      ReservedConcurrentExecutions: 50
+      Environment:
+        Variables:
+          alarmThreshold: !Ref AlarmThresholds
+          accName: !Ref AccName
+#================================================================================
+  BillingAlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "Daily-Billing-Alerts"
+      DisplayName: !Join ["", ["Daily Billing Alert for ", !Ref AccName ]]      
+      Subscription:
+      - Endpoint: !Ref EmailAddress
+        Protocol: email
