@@ -2,7 +2,7 @@
 # CF ver.4 - Billing alarm based on previous day cost.
 # CF ignores cost for 3 services {ie. 'Amazon Route 53' 'Tax' 'AWS Support (Business)'} this cost is incurred
 # only on the first day of the month. By doing so we avoid false positive alarms
-
+# 08/08/2019
 
 AWSTemplateFormatVersion: 2010-09-09
 Description: 'Billing Alerts for AWS Account'
@@ -142,7 +142,7 @@ Resources:
 
           def lambda_handler(event, context):
 
-              # ==Ignore Service === START ===========================================================
+              # === Ignore Service === START === (to be verified)
               def service_ignore_cost():
                   response2 = client1.get_cost_and_usage(
                       TimePeriod={
@@ -162,7 +162,7 @@ Resources:
                               total+=float(r4['Metrics']['UnblendedCost']['Amount'])    
                   total_ignore=(round((total), 2))
                   return total_ignore        
-              
+              # === Ignore Service === END ===
               
               response = client1.get_cost_and_usage(
               TimePeriod={
