@@ -36,3 +36,5 @@ yum install stress -y
 echo '#!/bin/bash' > stressRaf.sh
 echo 'stress --cpu  2 --timeout ${1}' >> stressRaf.sh
 chmod +x stressRaf.sh
+
+echo "set background=dark" > /home/ec2-user/.vimrc
