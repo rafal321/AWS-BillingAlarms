@@ -26,6 +26,8 @@ vi /root/.my.cnf
 # [client] 
 # user=root 
 # password=*****
+# auto-rehash
+
 chmod 600 /root/.my.cnf
 mkdir -p /home/tutorialinux/backups/db
 mysqldump --add-drop-table --databases employees > /home/tutorialinux/backups/db/$(/bin/date +\%Y-\%m-\%d).sql.ba
