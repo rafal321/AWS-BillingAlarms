@@ -8,8 +8,8 @@ systemctl start mysqld.service
 grep "temporary password" /var/log/mysqld.log	
 sudo mysql -u root -p***
 
-
-
+### mariadb-server ###
+see separate file
 
 ### FROM LA ###############################################################
 Installation:
