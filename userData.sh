@@ -38,3 +38,7 @@ echo 'stress --cpu  2 --timeout ${1}' >> stressRaf.sh
 chmod +x stressRaf.sh
 
 echo "set background=dark" > /home/ec2-user/.vimrc
+echo "set tabstop=4" >> /home/ec2-user/.vimrc
+echo "set shiftwidth=4" >> /home/ec2-user/.vimrc
+echo "set expandtab" >> /home/ec2-user/.vimrc
+echo "set background=dark" >> /home/ec2-user/.vimrc
