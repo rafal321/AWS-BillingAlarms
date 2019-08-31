@@ -46,4 +46,5 @@ semanage port -l
 
 
 # --LINKS------------------
+https://dev.mysql.com/doc/employee/en/employees-installation.html
 # https://stackoverflow.com/questions/10378693/how-does-mysql-store-data
