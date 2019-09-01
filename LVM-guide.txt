@@ -1,0 +1,101 @@
+sudo ebsnvme-id /dev/sdf    (sudo ebsnvme-id /dev/nvme3n1)  - get info of the volume
+lsblk
+NAME          MAJ:MIN RM SIZE RO TYPE MOUNTPOINT
+nvme1n1       259:0    0  15G  0 disk
+nvme2n1       259:1    0  15G  0 disk
+nvme3n1       259:2    0  10G  0 disk
+nvme4n1       259:3    0  10G  0 disk
+nvme0n1       259:4    0   8G  0 disk
+├─nvme0n1p1   259:5    0   8G  0 part /
+└─nvme0n1p128 259:6    0   1M  0 part
+__________________________________________________________________________________
+	>>> Gather info
+sudo lvmdiskscan -l		see if there are any lvm vol's in use
+sudo pvscan			similar info - it searches system for physical volumes
+		
+	>>> mark your storade devices as phisical volumes
+sudo pvcreate /dev/nvme1n1 /dev/nvme2n1 /dev/nvme3n1	
+
+	>>> Create volume group from phisical Volumes (def multiple of 4mb):
+sudo vgcreate SQLdata /dev/nvme1n1 /dev/nvme2n1 /dev/nvme3n1
+
+sudo lvmdiskscan -l  (sudo lvmdiskscan)
+  WARNING: only considering LVM devices
+  /dev/sdb   [      15.00 GiB] LVM physical volume
+  /dev/sdc   [      15.00 GiB] LVM physical volume
+  /dev/sdf   [      10.00 GiB] LVM physical volume
+  3 LVM physical volume whole disks
+  0 LVM physical volumes
+
+	>>> create logical volume (call Logical Vol Photos)
+sudo lvcreate -L 15G -n Photos SQLdata
+
+	>>> give it a filesystem
+sudo mkfs.ext4 /dev/SQLdata/Photos
+
+	>>> mount it
+sudo mkdir /Photos
+sudo mount /dev/SQLdata/Photos /Photos/
+df -h
+
+	>>> Running out of space - let's extend
+sudo vgdisplay SQLdata			man lvresize > 
+sudo lvresize -L +5G SQLdata/Photos	-l|--extents [+|-]Number[PERCENT]
+df -h					-L|--size [+|-]Size[m|UNIT]
+sudo resize2fs /dev/SQLdata/Photos
+df -h
+
+	>>> Create ne one
+sudo lvcreate -L 10G -n Videos SQLdata		>Logical volume "Videos" created.
+sudo mkfs.ext4 /dev/SQLdata/Videos
+sudo mkdir /Videos
+sudo mount /dev/SQLdata/Videos /Videos/
+ - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	>>> ADD another DISC to vol group
+sudo lvmdiskscan -l	(to mamy teraz)
+  /dev/sdb            [      15.00 GiB] LVM physical volume
+  /dev/sdc            [      15.00 GiB] LVM physical volume
+  /dev/sdf            [      10.00 GiB] LVM physical volume
+
+sudo vgextend SQLdata /dev/nvme4n1
+sudo lvmdiskscan -l		(sudo vgdisplay SQLdata)
+  /dev/sdb            [      15.00 GiB] LVM physical volume
+  /dev/sdc            [      15.00 GiB] LVM physical volume
+  /dev/sdf            [      10.00 GiB] LVM physical volume
+  /dev/sdg            [      10.00 GiB] LVM physical volume
+
+sudo lvcreate -l 100%FREE -n Music SQLdata
+sudo mkfs.ext4 /dev/SQLdata/Music
+sudo mkdir /Music
+sudo mount /dev/SQLdata/Music /Music/
+df -h
+
+sudo lvdisplay
+
+sudo pvscan
+
+  PV /dev/sdb   VG SQLdata         lvm2 [<15.00 GiB / 0    free]
+  PV /dev/sdc   VG SQLdata         lvm2 [<15.00 GiB / 0    free]
+  PV /dev/sdf   VG SQLdata         lvm2 [<10.00 GiB / 0    free]
+  PV /dev/sdg   VG SQLdata         lvm2 [<10.00 GiB / 0    free]
+  PV /dev/sdh   VG SQLdata         lvm2 [<25.00 GiB / <15.00 GiB free]
+
+
+vgextend, lvcreate, lvresize, lvextend, resize2fs
+
+sudo vim /etc/fstab
+/dev/mapper/SQLdata-Photos                      /Photos ext4 defaults 0 0
+/dev/mapper/SQLdata-Videos                      /Videos ext4 defaults 0 0
+/dev/mapper/SQLdata-Music                      /Music ext4 defaults 0 0
+
+
+______________________________________
+LINKS:
+http://xed.ch/help/lvm.html
+
+Some Acronyms
+VG= Volume Group (an object that binds LVs and PVs which are exclusive to a particular VG)
+PV= Physical Volume (a real drive or something that looks real to LVM)
+LV= Logical Volume (a mountable device which can contain filesystems in an LVM setup)
+PE= Physical Extents (arbitary PV chunks used for accounting by LVM, same size for all PVs in VG)
+LE= Logical Extent (arbitrary LV chunks, same size for all LVs in VG)
