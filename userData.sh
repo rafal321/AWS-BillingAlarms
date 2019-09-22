@@ -42,3 +42,5 @@ echo "set tabstop=4" >> /home/ec2-user/.vimrc
 echo "set shiftwidth=4" >> /home/ec2-user/.vimrc
 echo "set expandtab" >> /home/ec2-user/.vimrc
 echo "set background=dark" >> /home/ec2-user/.vimrc
+echo "alias vi='vim'" >> /root/.bashrc
+echo "alias vi='vim'" >> /home/ec2-user/.bashrc
