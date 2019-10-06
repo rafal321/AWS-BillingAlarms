@@ -61,3 +61,67 @@ spec.json
 =====================================================================================================================
 COUNTER.file
 10
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++notes++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+EXAMPLE DATABASES:
+https://dev.mysql.com/doc/index-other.html
+
+EMPLOYEES DB:
+https://dev.mysql.com/doc/employee/en/employees-installation.html
+sudo yum install git
+sudo git clone https://github.com/datacharmer/test_db
+cd /home/ec2-user/test_db	-> 243M    test_db/  (albo zip  168M    /test_db-master)
+mysql -u root -t < employees.sql
+
+SAKILA DB: 
+https://dev.mysql.com/doc/sakila/en/sakila-installation.html
+
+PERCONA INSTALLATION:
+https://www.percona.com/doc/percona-xtrabackup/2.4/installation/yum_repo.html  (Percona XtraBackup 2.4 Documentation)
+yum install https://repo.percona.com/yum/percona-release-latest.noarch.rpm -y
+yum install percona-xtrabackup-24 -y
+
+MY SQL - mariadb
+Installing client lets you only log in to DB remotely
+
+# INSTALL
+sudo yum install mariadb-server -y
+mysql_secure_installation
+
+# INFO
+less /var/log/mariadb/mariadb.log	-> main log file , people cannot log in and other issues
+/lib/systemd/system/mariadb.service	-> main unit file
+vi /etc/my.cnf				->  main mysql config file
+ss -tulpn | grep mysql     netstat -tulpn | grep mysql   	-> to port number if its running 
+
+# DB BACKUPS - tutorialinux
+Wszystko on running db
+mysqldump --all-databases --all-routines > /path/to/fulldump.sql
+mysql –uroot –p < alldatabases.sql
+-	- - - - - - - - - -
+mysqldump --databases employees > /backups/$(date +%Y-%m-%d).sql.bkp
+vi /etc/crontab -> 2 2 * * * * * root mysqldump --databases employees > /backups/$(date +%Y-%m-%d).sql.bkp
+
+jest ok jak db istnieje, nie da sie zrobic restore gdy recznie usune folder employees
+
+# DB BACKUPS - Yogesh Mehta
+https://www.youtube.com/watch?v=6aOUOHJ04tE
+mysqldump -u root --databases employees > /backups/$(date +%Y-%m-%d)-ABC.sql.bkp
+file /backups/2019-10-05-ABC.sql.bkp
+/backups/2019-10-05-ABC.sql.bkp: ASCII text, with very long lines   -> NOT ENCRYPTED!
+>>>ENCRYPT BACKED UP FILE
+openssl enc -aes-256-cbc -in /backups/2019-10-05-ABC.sql.bkp -out /backups/2019-10-05-ENCRYP.sql.bkp
+rm /backups/2019-10-05-ABC.sql.bkp
+
+now drop database employees
+
+enc -aes-256-cbc -d -in /backups/2019-10-05-ENCRYP.sql.bkp > /backups/2019-10-05-DECRYP.sql.bkp
+mysql -u root < /backups/2019-10-05-DECRYP.sql.bkp
+
+# TROUBLESHOOTING - Yogesh Mehta
+grep -i error /var/log/mariadb/mariadb.log	-> good for debugging
+grep -i warning /var/log/mariadb/mariadb.log
+grep -i port /var/log/mariadb/mariadb.log	-> to check port on which db is running (show variables like "port")
+
+nmap –p 3306 90.10.10.20 -> to check from different host
