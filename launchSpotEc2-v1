@@ -58,23 +58,24 @@ spec.json
     }
   ]
 }
-=====================================================================================================================
+#=====================================================================================================================
 COUNTER.file
 10
 
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-+++++notes++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-EXAMPLE DATABASES:
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++notes++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#EXAMPLE DATABASES:
 https://dev.mysql.com/doc/index-other.html
 
-EMPLOYEES DB:
+#EMPLOYEES DB:
 https://dev.mysql.com/doc/employee/en/employees-installation.html
 sudo yum install git
 sudo git clone https://github.com/datacharmer/test_db
 cd /home/ec2-user/test_db	-> 243M    test_db/  (albo zip  168M    /test_db-master)
 mysql -u root -t < employees.sql
 
-SAKILA DB: 
+#SAKILA DB: 
 https://dev.mysql.com/doc/sakila/en/sakila-installation.html
 
 PERCONA INSTALLATION:
@@ -86,8 +87,13 @@ MY SQL - mariadb
 Installing client lets you only log in to DB remotely
 
 # INSTALL
-sudo yum install mariadb-server -y
+sudo yum install mariadb-server –y
+echo "[client] 
+user=root 
+password=*****
+auto-rehash " > /root/.my.cnf
 mysql_secure_installation
+#>>> GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.100.%' IDENTIFIED BY 'my-new-password' WITH GRANT OPTION;
 
 # INFO
 less /var/log/mariadb/mariadb.log	-> main log file , people cannot log in and other issues
@@ -125,3 +131,42 @@ grep -i warning /var/log/mariadb/mariadb.log
 grep -i port /var/log/mariadb/mariadb.log	-> to check port on which db is running (show variables like "port")
 
 nmap –p 3306 90.10.10.20 -> to check from different host
+
+
+___________________________________________________
+After checking the logs I found the following error:
+[ERROR] Unknown/unsupported storage engine: InnoDB
+I removed these files:
+rm /var/lib/mysql/ib_logfile0
+rm /var/lib/mysql/ib_logfile1 
+at /var/lib/mysql
+This resolved my problem after restart.
+__________________________________________________
+
+
+
+#======USER DATA================
+#!/bin/bash
+yum update -y
+echo "set background=dark" > /home/ec2-user/.vimrc
+echo "set tabstop=4" >> /home/ec2-user/.vimrc
+echo "set shiftwidth=4" >> /home/ec2-user/.vimrc
+echo "set expandtab" >> /home/ec2-user/.vimrc
+echo "alias vi='vim'" >> /home/ec2-user/.bashrc
+echo "set background=dark" >> /root/.vimrc
+echo "alias vi='vim'" >> /root/.bashrc
+
+yum install mariadb-server -y
+echo "[client] 
+user=root 
+password=*****
+auto-rehash" > /root/.my.cnf
+yum install https://repo.percona.com/yum/percona-release-latest.noarch.rpm -y
+yum install percona-xtrabackup-24 -y
+
+yum install git -y
+git clone https://github.com/datacharmer/test_db /home/ec2-user/test_db
+
+systemctl start mariadb.service
+
+
