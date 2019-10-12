@@ -181,6 +181,12 @@ mount /dev/nvme1n1 /sql/bin_log  	mount manually
 /sbin/ebsnvme-id /dev/nvme1n1	find out device name
 Volume ID: vol-05f01e64249378461
 /dev/sdf
-blkid
+ 🎄blkid
+[root@ip-172-31-5-23 /]# blkid
+/dev/nvme0n1: PTUUID="33e98a7e-ccdf-4af7-8a35-da18e704cdd4" PTTYPE="gpt"
+/dev/nvme0n1p1: LABEL="/" UUID="add39d87-732e-4e76-9ad7-40a00dbb04e5" TYPE="xfs" PARTLABEL="Linux" PARTUUID="47de1259-f7c2-470b-b49b-5e054f378a95"
+/dev/nvme0n1p128: PARTLABEL="BIOS Boot Partition" PARTUUID="430fb5f4-e6d9-4c53-b89f-117c8989b982"
+/dev/nvme1n1: UUID="d3494eb3-c309-4dbd-b904-a997d013e9b5" TYPE="xfs"
+
 
 
