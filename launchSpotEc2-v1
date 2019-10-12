@@ -169,4 +169,18 @@ git clone https://github.com/datacharmer/test_db /home/ec2-user/test_db
 
 systemctl start mariadb.service
 
+=+=+=+==+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+MOUNTING
+
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-using-volumes.html
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/nvme-ebs-volumes.html#identify-nvme-ebs-device
+lsblk –f
+mkfs -t xfs /dev/nvme1n1		(makefilesystem – no need to create partition)
+mount /dev/nvme1n1 /sql/bin_log  	mount manually
+	mount automatically
+/sbin/ebsnvme-id /dev/nvme1n1	find out device name
+Volume ID: vol-05f01e64249378461
+/dev/sdf
+blkid
+
 
