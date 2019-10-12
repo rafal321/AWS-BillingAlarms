@@ -90,8 +90,7 @@ Installing client lets you only log in to DB remotely
 sudo yum install mariadb-server –y
 echo "[client] 
 user=root 
-password=*****
-auto-rehash " > /root/.my.cnf
+password=*****" > /root/.my.cnf
 mysql_secure_installation
 #>>> GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.100.%' IDENTIFIED BY 'my-new-password' WITH GRANT OPTION;
 
