@@ -187,5 +187,18 @@ Volume ID: vol-05f01e64249378461
 /dev/nvme0n1p128: PARTLABEL="BIOS Boot Partition" PARTUUID="430fb5f4-e6d9-4c53-b89f-117c8989b982"
 /dev/nvme1n1: UUID="d3494eb3-c309-4dbd-b904-a997d013e9b5" TYPE="xfs"
 
+============================================
+POINT IN TIME RECOVERY -> BINARY LOGS
+https://dev.mysql.com/doc/mysql-backup-excerpt/5.5/en/point-in-time-recovery.html
+SHOW BINARY LOGS;
+https://www.youtube.com/watch?v=TkSwC923-Xs (TechBrothersIT)
+
+vi /etc/my.cnf
+[mysqld]
+log-bin=anyName.log				(anyNameXX.log – bedzie dodane automatically)
+log-bin-index=anyIndexName.log
+max-binlog-size=10M
+
+mysqlbinlog anyName.000001
 
 
