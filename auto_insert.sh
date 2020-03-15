@@ -1,4 +1,6 @@
 #!/bin/bash
+# script for generating inserts into a database
+# for testing galera cluster master slave replication
 
 INSERTS_NO=10
 INTERVAL=0.5
