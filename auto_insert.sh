@@ -17,8 +17,8 @@ for i in $(seq 1 ${INSERTS_NO});do
 (( x++ ))
 #mysql -e "insert into autodb.autotbl1 (description,${SERVER_IP}sequence) values('${MESSAGE}','${x}');"
 mysql -u auto_user -pauto_paSs987* -h ${SERVER_IP} -e "insert into autodb.autotbl1 (description,sequence) values('${MESSAGE}','${x}');" >/dev/null 2>&1
-sleep ${INTERVAL}
 printf '\r%8d %8s' ${x} "rows inserted"
+sleep ${INTERVAL}
 done
 
 #mysql -e "insert into autodb.autotbl1 (description) values('-----------');"
