@@ -39,3 +39,14 @@ echo
 # done
 
 # need >/dev/null 2>&1  to suppress "Using a password on the command line interface can be insecure." for MySQL 5.7
+
+#====Sample output============================
+mysql> select * from autodb.autotbl1;
++-----+-----------------+----------+---------------------+
+| id  | description     | sequence | TimeStamp           |
++-----+-----------------+----------+---------------------+
+|   1 | message-1       |        1 | 2020-03-29 13:29:13 |
+|   2 | message-1       |        2 | 2020-03-29 13:29:21 |
+|   3 | message-1       |        3 | 2020-03-29 13:29:29 |
+|   4 | message-1       |        4 | 2020-03-29 13:29:37 |
+|   5 | message-1       |        5 | 2020-03-29 13:29:46 |
