@@ -5,6 +5,7 @@
 INSERTS_NO=10
 INTERVAL=0.5
 MESSAGE='your-message'
+SERVER_IP='34.245.51.243'
 
 C_NC='\e[0m' # No Color
 C_BROWN='\e[0;33m'
@@ -14,13 +15,13 @@ printf "${C_BROWN} Inserting ${INSERTS_NO} rows  Every ${INTERVAL} sec  Descript
 x=0
 for i in $(seq 1 ${INSERTS_NO});do
 (( x++ ))
-#mysql -e "insert into autodb.autotbl1 (description,sequence) values('${MESSAGE}','${x}');"
-mysql -u auto_user -pauto_pass -h 52.211.68.84 -e "insert into autodb.autotbl1 (description,sequence) values('${MESSAGE}','${x}');" >/dev/null 2>&1
+#mysql -e "insert into autodb.autotbl1 (description,${SERVER_IP}sequence) values('${MESSAGE}','${x}');"
+mysql -u auto_user -pauto_pass -h ${SERVER_IP} -e "insert into autodb.autotbl1 (description,sequence) values('${MESSAGE}','${x}');" >/dev/null 2>&1
 sleep ${INTERVAL}
 done
 
 #mysql -e "insert into autodb.autotbl1 (description) values('-----------');"
-mysql -u auto_user -pauto_pass -h 52.211.68.84 -e "insert into autodb.autotbl1 (description) values('-----------');" >/dev/null 2>&1
+mysql -u auto_user -pauto_pass -h ${SERVER_IP} -e "insert into autodb.autotbl1 (description) values('-----------');" >/dev/null 2>&1
 echo
 printf " --- Finished ---${C_NC}\n"
 echo
