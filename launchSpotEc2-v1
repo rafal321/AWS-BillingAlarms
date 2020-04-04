@@ -1,12 +1,24 @@
 #!/bin/bash
-# launch.sh                                                                                                            # 2019-10-05 this launches single spot instance created for testing databases
+# launch.sh
+# 2019-10-05 this launches single spot instance created for testing databases
 set -e
+
+# - - - Your Variables  - - - - - -
+
 REGION="eu-west-1"
-INSTANCE_TYPE="t3.small" # value to be changed in spec.json file
+INSTANCE_TYPE="t2.micro"
 echo $(($(cat COUNTER.file)+1)) > COUNTER.file
 COUNTER=$(cat COUNTER.file)
 echo "${COUNTER}" > COUNTER.file
 NAMETAGVALUE="${COUNTER}-RafDB-spot-test"
+ROOT_VOL_SIZE=18
+
+# - - - - - - - - - - - - - - - - -
+
+# replace in json spec file
+jq --arg a "${INSTANCE_TYPE}" '.InstanceType = $a' spec.json > "tmp" && mv "tmp" spec.json
+jq --argjson a "${ROOT_VOL_SIZE}" '.BlockDeviceMappings[0].Ebs.VolumeSize = $a' spec.json > "tmp" && mv "tmp" spec.json
+
 
 echo -e "   \e[95m*** \e[96mLaunching spot instance \e[95m***"
 
@@ -18,7 +30,7 @@ echo -e "   \e[95mInstance spot price in \e[97m${REGION} \e[95mfor \e[97m${INSTA
 sleep 1
 
 # spot instance request
-aws ec2 request-spot-instances --spot-price "${PRICE}" --instance-count 1 --type "one-time" --launch-specification file://spec.json --output table
+aws ec2 request-spot-instances --spot-price "${PRICE}" --instance-count 1 --type "one-time" --launch-specification file://spec.json > /dev/null 2>&1
 
 sleep 3
 # tag instance
