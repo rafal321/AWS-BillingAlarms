@@ -46,8 +46,8 @@ echo "set background=dark" >> /root/.vimrc
 echo "alias vi='vim'" >> /root/.bashrc
 
 # create swap
-dd if=/dev/zero of=/swap count=4096 bs=1MiB
-chmod 600 /swap
-mkswap /swap
-swapon /swap
+dd if=/dev/zero of=/swap count=4096 bs=1MiB &&
+chmod 600 /swap &&
+mkswap /swap &&
+swapon /swap &&
 echo "/swap swap swap sw 0 0" >> /etc/fstab
