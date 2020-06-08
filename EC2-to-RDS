@@ -2,7 +2,7 @@
 
 # raf zmodyfikowany script i dziala
 
-on source
+on source minimum required:
 log-bin=mysql-bin.log
 server_id=323
 
@@ -10,9 +10,7 @@ server_id=323
 [root@ip-10-35-241-117 ~]# cat backup.sh
 #!/bin/bash
 
-
 mysqldump_bin="mysqldump"
-
 
 backup_path="/root/bkp-dir"
 
