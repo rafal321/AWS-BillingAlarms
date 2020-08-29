@@ -2,8 +2,10 @@
 # https://www.youtube.com/watch?v=ERMHycDc8ck
 # https://awsauroralabsmy.com/provisioned/failover/
 
-cat simple_failover.py
+# to execute
+./simple_failover.py -erk1.cluster-aatbbcc66eew.eu-west-1.rds.amazonaws.com -uXXX -pXXXX
 
+cat simple_failover.py
 #!/usr/bin/python
 """
 Amazon Aurora Labs for MySQL
