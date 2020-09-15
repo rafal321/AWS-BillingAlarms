@@ -12,4 +12,7 @@ alternatives --install /usr/bin/python python /usr/bin/python3.6 60
 
 # Select which Python version to use
 alternatives --config python
+
+# edit the file --> /usr/bin/yum and change to first line to --> "#!/usr/bin/python2"
+# it's because yum does not support python3
 #______________________________________________________
