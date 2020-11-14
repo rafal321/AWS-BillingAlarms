@@ -1,6 +1,7 @@
 # source ./bin/python3
 # https://www.youtube.com/watch?v=ERMHycDc8ck
 # https://awsauroralabsmy.com/provisioned/failover/
+# sudo yum install python3
 
 # to execute
 ./simple_failover.py -erk1.cluster-aatbbcc66eew.eu-west-1.rds.amazonaws.com -uXXX -pXXXX
