@@ -2,10 +2,12 @@
 # https://www.youtube.com/watch?v=ERMHycDc8ck
 # https://awsauroralabsmy.com/provisioned/failover/
 # sudo yum install python3
+# For Python 2.x sudo pip install pymysql.
+# For Python 3.x sudo pip3 install pymysql.
 
 # to execute
 ./simple_failover.py -erk1.cluster-aatbbcc66eew.eu-west-1.rds.amazonaws.com -uXXX -pXXXX
-
+# _____________________________________________________________________________________________________
 cat simple_failover.py
 #!/usr/bin/python
 """
