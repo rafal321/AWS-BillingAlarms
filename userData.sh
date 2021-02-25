@@ -1,8 +1,12 @@
 #!/bin/bash
 
 yum update -y
+amazon-linux-extras install epel -y
 yum install htop -y
 yum install httpd -y
+yum install jq -y
+yum install tmux -y
+yum install stress -y
 service httpd start
 chkconfig httpd on
 NoPublicIP=`curl http://169.254.169.254/latest/meta-data/public-ipv4`
@@ -30,9 +34,6 @@ echo '<hr>' >> index.html
 echo '</html></body>' >> index.html
 
 cd /home/ec2-user
-amazon-linux-extras install epel -y
-yum install stress -y
-
 echo '#!/bin/bash' > stressRaf.sh
 echo 'stress --cpu  2 --timeout ${1}' >> stressRaf.sh
 chmod +x stressRaf.sh
