@@ -56,3 +56,4 @@ echo "/swap swap swap sw 0 0" >> /etc/fstab
 # Python3 & boto
 yum install python3 -y
 pip3 install --user boto3 pymysql
+python3 -m pip install Faker
