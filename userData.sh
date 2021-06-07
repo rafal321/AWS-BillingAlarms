@@ -57,3 +57,7 @@ echo "/swap swap swap sw 0 0" >> /etc/fstab
 yum install python3 -y
 pip3 install --user boto3 pymysql
 python3 -m pip install Faker # https://youtu.be/bW2uTvvqTg4
+
+# Ansible
+amazon-linux-extras install ansible2
+yum install ansible
