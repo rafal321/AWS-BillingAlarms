@@ -61,3 +61,8 @@ python3 -m pip install Faker # https://youtu.be/bW2uTvvqTg4
 # Ansible
 amazon-linux-extras install ansible2
 yum install ansible
+
+# Docker - https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install-linux.html
+amazon-linux-extras install docker
+service docker start
+usermod -a -G docker ec2-user
