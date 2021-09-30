@@ -32,7 +32,7 @@ echo
 ### Create Db ####
 
 #  CREATE DATABASE autodb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-#  CREATE TABLE IF NOT EXISTS autodb.autotbl1(id int AUTO_INCREMENT PRIMARY KEY, description varchar(30), sequence int, TimeStamp TIMESTAMP);
+#  CREATE TABLE IF NOT EXISTS autodb.autotbl1(id int AUTO_INCREMENT PRIMARY KEY, description varchar(30), sequence int, TimeStamp DATETIME DEFAULT CURRENT_TIMESTAMP);
 #  GRANT ALL ON autodb.* TO 'auto_user'@'%' IDENTIFIED BY 'auto_paSs987*';
 
 #  END=5
