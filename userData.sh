@@ -13,11 +13,12 @@ NoPublicIP=`curl http://169.254.169.254/latest/meta-data/public-ipv4`
 RAFIPPRIV=`curl http://169.254.169.254/latest/meta-data/local-ipv4`
 RAFAZ=`curl http://169.254.169.254/latest/meta-data/placement/availability-zone/`
 RAFDESC='Here goes your description'
+RKTIME=$(date +%FT%T)
 
 cd /var/www/html/
 echo '<html><body style="background-color:GreenYellow">' > index.html
 echo '<hr>' >> index.html
-echo " - Description: ${RAFDESC}" >> index.html
+echo " -Timestamp: ${RKTIME} - Description: ${RAFDESC}" >> index.html
 echo '<hr>' >> index.html
 echo '<h2 style="color:darkblue;margin-left:50px;">' >> index.html
 echo " - Public IP: ${NoPublicIP}" >> index.html
