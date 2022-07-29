@@ -2,11 +2,8 @@
 
 yum update -y
 amazon-linux-extras install epel -y
-yum install htop -y
+yum install htop jq tmux stress -y
 yum install httpd -y
-yum install jq -y
-yum install tmux -y
-yum install stress -y
 service httpd start
 chkconfig httpd on
 NoPublicIP=`curl http://169.254.169.254/latest/meta-data/public-ipv4`
